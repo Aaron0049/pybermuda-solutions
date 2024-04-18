@@ -29,9 +29,16 @@ from time import perf_counter
 
 
 def fibonacci(n) -> int:
-    # write your code here 👇👇
-    pass
-    # write your code here 👆👆
+    if n == 1:
+        return 0
+    if n == 2:
+        return 1
+    if n <= 0:
+        raise Exception("why")
+    flist = [0, 1]
+    for i in range(2, n):
+        flist.append(flist[i-1] + flist[i-2])
+    return flist[n-1]
 
 
 def check_fibonacci() -> None:
