@@ -34,16 +34,32 @@ https://www.nytimes.com/svc/wordle/v2/YYYY-MM-DD.json
 """
 from urllib.request import urlopen
 from random import choice
+from timeit import default_timer as timer
+import requests
+from datetime import date
 
-WORD_LIST_URL = "https://raw.githubusercontent.com/tabatkins/wordle-list/main/words"
+WORD_LIST_URL = "https://gist.githubusercontent.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b/raw/45c977427419a1e0edee8fd395af1e0a4966273b/wordle-answers-alphabetical.txt"
+
 
 with urlopen(WORD_LIST_URL) as f:
     WORDS = f.read().decode("utf-8").upper().splitlines()
 
+def word_from_today() -> str:
+    dt_string = date.today().strftime("%Y-%m-%d")
+    url = f"https://www.nytimes.com/svc/wordle/v2/{dt_string}.json"
+
+    response = requests.get(url).json()
+
+    word = response["solution"].upper()
+
+    if word not in WORDS:
+        WORDS.append(word)
+
+    return word
 
 class Wordle:
     def __init__(self, word: str | None = None) -> None:
-        self._secret = word or choice(WORDS)
+        self._secret = word or word_from_today()
         self.clues: list[str] = []
 
     def guess(self, word: str) -> str:
@@ -59,21 +75,41 @@ class Wordle:
                 else:
                     clue[i] = "🟨"
 
-        self.clues.append(" ".join(clue))
+        self.clues.append("".join(clue))
 
         return self.clues[-1]
-
-
+    
 def solve_wordle(wordle: Wordle, initial_guess: str) -> str:
-    """
-    Solves a wordle puzzle using the given initial guess
-    """
-    # write your code here 👇👇
-    pass
-    # write your code here 👆👆
-
-
+    tlist = tuple(WORDS)
+    hint = wordle.guess(initial_guess)
+    print("guessing   " + initial_guess)
+    print(hint + "   hint returned")
+    while hint != "🟩🟩🟩🟩🟩":
+        for x in tlist:
+            for i in range(5):
+                if hint[i] == "⬜" and initial_guess[i] in x:
+                    WORDS.remove(x)
+                    break
+                elif hint[i] == "🟩" and initial_guess[i] != x[i]:
+                    WORDS.remove(x)
+                    break
+                elif hint[i] == "🟨" and initial_guess[i] not in x:
+                    WORDS.remove(x)
+                    break
+                elif hint[i] == "🟨" and initial_guess[i] == x[i]:
+                    WORDS.remove(x)
+                    break
+        tlist = tuple(WORDS)
+        initial_guess = choice(WORDS)
+        hint = wordle.guess(initial_guess)
+        print("guessing   " + initial_guess)
+        print(hint + "   hint returned")
+    return initial_guess
+   
 if __name__ == "__main__":
+    start = timer()
     game = Wordle()
-    solution = solve_wordle(game, "HELLO")
+    solution = solve_wordle(game, "SLATE")
+    end = timer()
     print(f"The solution is {solution}")
+    print(end - start)
