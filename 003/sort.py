@@ -1,45 +1,39 @@
-"""
-SORTING
+#Bubble sort. Uses a temp variable for comparisons. Slow, only use for small lists unless you like waiting.
+def bubble_manual_sort(list: list, *, order: str) -> int:
+    for i in range(len(list)):
+        for j in range(0, len(list) - i - 1):
+            match order:
+                case "asc":
+                    if list[j] > list[j + 1]:
+                        temp = list[j]
+                        list[j] = list[j+1]
+                        list[j+1] = temp
+                case "desc":
+                    if list[j] < list[j + 1]:
+                        temp = list[j]
+                        list[j] = list[j+1]
+                        list[j+1] = temp
+    return list
 
-There are many different ways to sort a list. Some are more efficient than others.
-
-Python provides a couple of ways to sort a list. The most common way is to use the built-in `sort` method on
-the list directly. This method sorts the list in place. You can also use the `sorted` function which returns a new
-sorted list without modifying the original list.
-
-The purpose of this exercise, however, is to have you write your own sorting algorithm. The algorithm should take a list
-and an order parameter. The order parameter can be either "asc" for ascending order or "desc" for descending order.
-
-Here are some good places to look for sorting algorithms:
-- Bubble sort
-- Selection sort
-- Insertion sort
-- Merge sort
-
-Google is your friend. Look up these algorithms and try to implement one of them.
-
-You cannot use the built-in `sort` method or the `sorted` function. You must write your own sorting algorithm.
-
-This excercise will introduce the concept of unit tests, and algorithm complexity.
-
-The unit tests can be found in the file 003/test_sort.py
-
-To run the tests simply run `pytest` in the terminal (after having done `pip install -r requirements.txt`)
-"""
-
-
+#Quick sort. Left as manual_sort to function with pre written unit tests.
+#This implementation uses auxiliary lists, so could be more memory efficient.
 def manual_sort(list: list, *, order: str) -> int:
-    """
-    Sorts a list in ascending or descending order based on the given order parameter.
+    if len(list) < 2:
+        return list
+    else:
+        match order:
+            case "asc":
+                pivot= list[0]
+                less = [i for i in list[1:] if i <= pivot]
+                greater = [i for i in list[1:] if i > pivot]
+                return manual_sort(less, order="asc") + [pivot] + manual_sort(greater, order="asc")
+            case "desc":
+                pivot= list[0]
+                less = [i for i in list[1:] if i <= pivot]
+                greater = [i for i in list[1:] if i > pivot]
+                return manual_sort(greater, order="desc") + [pivot] + manual_sort(less, order="desc")
+            
+data = [5,2,1,6,4,34,2365,234,236,642,62345,435]
 
-    Args:
-        list: The list to be sorted.
-        order: The order in which to sort the list. Can be either "asc" for ascending order or "desc" for descending order.
-
-    Returns:
-        The sorted list.
-
-    """
-    # WRITE YOUR CODE HERE 👇👇
-    pass
-    # WRITE YOUR CODE HERE 👆👆
+if __name__ == "__main__":
+    print(manual_sort(data, order="asc"))
